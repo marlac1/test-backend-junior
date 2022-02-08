@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  # Base descriptions
+  python_app:
+    &python_app
+    build:
+      context: ./
+      dockerfile: infra/images/local/api.Dockerfile
+    volumes:
+      - .:/home/app
+    env_file: .env
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+
+  # postgres:
+  #   container_name: postgres
+  #   image: postgres:alpine
+  #   env_file: .env
+  #   expose:
+  #     - 5432
+  #   ports:
+  #     - 5432:5432
+  #   networks:
+  #     - boy-test
+
+  api:
+    &api
+    <<: *python_app
+    container_name: api-test
+    command:
+      - "python"
+      - "-m"
+      - "debugpy"
+      - "--listen"
+      - "0.0.0.0:8001"
+      - "boy.py"
+    ports:
+      - 8000:8000
+      - 8001:8001
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`api.localhost`)
+  # reverse-proxy:
+  #   image: traefik:v2.4
+  #   container_name: reverse-proxy
+  #   command:
+  #     - "--api.insecure=true"
+  #     - "--providers.docker"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entryPoints.web.address=:80"
+  #     - "--log.level=DEBUG"
+  #   ports:
+  #     - "80:80"
+  #     - "8080:8080"
+  #   restart: always
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=boy
+  #     - traefik.http.routers.reverse-proxy.rule=Host(`traefik.localhost`)
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   networks:
+  #     - boy-test
+

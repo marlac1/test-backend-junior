@@ -1,0 +1,77 @@
+name: audit
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+    paths-ignore:
+      - "**.md"
+      - "Makefile"
+      - ".devcontainer"
+      - ".thunderclient"
+      - "credentials"
+      - "docker-compose.yml"
+      - ".env.sample"
+      - ".gitignore"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "**.md"
+      - "Makefile"
+      - ".devcontainer"
+      - ".thunderclient"
+      - "credentials"
+      - "docker-compose.yml"
+      - ".env.sample"
+      - ".gitignore"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: setup env
+        run: touch .env
+
+      - name: install dependencies
+        run: make install_ci
+
+      - name: lint
+        run: make lint
+
+
+  test:
+    env:
+      ENV: "test"
+      LOG_NAME: "test"
+      LOG_HANDLER: "console"
+      LOG_LEVEL: "ERROR"
+      API_KEY: "testApiKEY"
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: install dependencies
+        run: pip install -e ".[ci]"
+
+      - name: testing
+        run: |
+          python boy.py &
+          pytest -vvv -x tests/
