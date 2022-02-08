@@ -4,7 +4,6 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional
 
 from app.core import Context
-from app.domain.errors import BetException
 from pydantic import BaseModel, Field
 
 
@@ -53,6 +52,9 @@ class Log:
         return log
 
     def exception(self, err: Exception):
+        # TODO: cleanner way to escape recursive import
+        from app.domain.errors import BetException
+
         log = self.__duplicate__()
 
         if isinstance(err, BetException):

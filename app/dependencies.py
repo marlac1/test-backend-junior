@@ -5,27 +5,29 @@ Can be converted to a package if required.
 import logging
 
 from dependency_injector.containers import DeclarativeContainer
-from dependency_injector.providers import (  # DependenciesContainer,
+from dependency_injector.providers import (
     Configuration,
     Container,
+    DependenciesContainer,
+    Factory,
     Singleton,
 )
 from dependency_injector.wiring import Provide
+from sqlalchemy.engine import Engine, create_engine
 
+from app.adapters import stores
 from app.core import logger
+from app.domain import usecases
 from app.routes import API
 from app.routes import base as base_ep
+from app.routes import players
+
 
 ######### MASKED SETUPS #########
-# def _setup_sqlalch(config) -> Engine:
-#     usr = config["postgres"]["user"]
-#     pwd = config["postgres"]["password"]
-#     hostname = config["postgres"]["host"]
-#     database = config["postgres"]["database"]
+def _setup_sqlalch(config) -> Engine:
+    database = config["db"]["name"]
 
-#     return create_engine(
-#         f"postgresql://{usr}:{pwd}@{hostname}/{database}?sslmode=disable", future=True, echo=True
-#     )
+    return create_engine(f"sqlite:///{database}", future=True, echo=True)
 
 
 def _setup_logging(config) -> None:
@@ -51,12 +53,29 @@ class Core(DeclarativeContainer):
     # ----------------------------------------
     # Database
     # ----------------------------------------
-    # postgres = Singleton(_setup_sqlalch, config)
+    db = Singleton(_setup_sqlalch, config)
+
+
+class Store(DeclarativeContainer):
+    core: Core = DependenciesContainer()  # type: ignore
+
+    transaction = Factory(stores.SQLTransactions, core.db)
+
+    players = Factory(stores.Players, transaction)
+
+
+class Usecases(DeclarativeContainer):
+    core: Core = DependenciesContainer()  # type: ignore
+    store: Store = DependenciesContainer()  # type: ignore
+
+    players = Singleton(usecases.Player, store.players, core.logger)
 
 
 class Endpoints(DeclarativeContainer):
+    uc: Usecases = DependenciesContainer()  # type: ignore
 
     base = Singleton(base_ep.Base)
+    players = Singleton(players.Players, uc.players)
 
 
 ######### APPLICATION CONTAINERS #########
@@ -64,7 +83,9 @@ class BoyAPI(DeclarativeContainer):
     config = Configuration()
 
     core: Core = Container(Core, config=config)  # type: ignore
-    endpoints: Endpoints = Container(Endpoints)  # type: ignore
+    store: Store = Container(Store, core=core)  # type: ignore
+    uc: Usecases = Container(Usecases, core=core, store=store)  # type: ignore
+    endpoints: Endpoints = Container(Endpoints, uc=uc)  # type: ignore
 
     # ----------------------------------------
     # Transports
@@ -72,6 +93,7 @@ class BoyAPI(DeclarativeContainer):
     router = Singleton(
         API,
         endpoints.base,
+        endpoints.players,
     )
 
 

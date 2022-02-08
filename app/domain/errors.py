@@ -10,13 +10,8 @@ def _new_precise_error(from_exception: type, new_name: str, *args, **kwargs):
     def constructor(self, *args, **kwargs):
         from_exception.__init__(self, *args, **kwargs)
 
-    def _name(self) -> str:
-        return new_name
-
     new_name = pascalcase(new_name)
-    err_cls = type(
-        new_name, (from_exception,), {"__init__": constructor, "__super": None, "__name__": _name}
-    )
+    err_cls = type(new_name, (from_exception,), {"__init__": constructor, "__super": None})
     return err_cls(*args, **kwargs)
 
 
@@ -44,7 +39,6 @@ class ErrUnexpected(BetException):
     def to_json(self) -> dict:
         return {
             "error": "something unexpected happened",
-            "ERROR": "Internal error",
         }
 
     def to_precise(self, new_name):
@@ -65,7 +59,6 @@ class ErrNonBlockingUnexpected(BetException):
     def to_json(self) -> dict:
         return {
             "error": self.__error,
-            "ERROR": snakecase(self.__error).upper(),
         }
 
     def to_precise(self, new_name):
@@ -86,7 +79,6 @@ class ErrUnauthorized(BetException):
     def to_json(self) -> dict:
         return {
             "error": self.__error,
-            "ERROR": snakecase(self.__error).upper(),
         }
 
     def to_precise(self, new_name: str):
@@ -107,7 +99,6 @@ class ErrTooManyRequest(BetException):
     def to_json(self) -> dict:
         return {
             "error": self.__error,
-            "ERROR": snakecase(self.__error).upper(),
         }
 
     def to_precise(self, new_name: str):
@@ -124,16 +115,12 @@ class ErrNotFound(BetException):
 
     def __init__(self, key: str):
         self.__key = key
-        self.__error = "not found"
-        self.__old_error = snakecase(self.__key).upper() + "_" + snakecase(self.__error).upper()
+        self.__error = "not_found"
 
         super().__init__(f"Invalid{pascalcase(key)}: {self.__error}")
 
-    def set_old_error(self, old_error: str):
-        self.__old_error = old_error
-
     def to_json(self) -> dict:
-        return {"key": self.__key, "error": self.__error, "ERROR": self.__old_error}
+        return {"key": self.__key, "error": self.__error}
 
     def to_precise(self, _: str):
         return _new_precise_error(type(self), f"{pascalcase(self.__key)}NotFound", self.__key)
@@ -154,11 +141,10 @@ class ErrInvalidData(BetException):
     ErrInvalidData propagate invalid data informations.
     """
 
-    def __init__(self, key: str, error: str, details: List[Details] = None, old_error=None):
+    def __init__(self, key: str, error: str, details: List[Details] = None):
         self.__key = key
         self.__error = error
         self.__details = details
-        self.__old_error = old_error
         self.status = HTTPStatus.BAD_REQUEST
 
         super().__init__(f"Invalid{pascalcase(key)}: {error}")
@@ -171,9 +157,6 @@ class ErrInvalidData(BetException):
         return {
             "key": self.__key,
             "error": self.__error,
-            "ERROR": snakecase(self.__key).upper() + "_" + snakecase(self.__error).upper()
-            if not self.__old_error
-            else self.__old_error,
             "details": [detail.dict() for detail in self.__details] if self.__details else None,
         }
 
@@ -184,7 +167,6 @@ class ErrInvalidData(BetException):
             key=self.__key,
             error=self.__error,
             details=self.__details,
-            old_error=self.__old_error,
         )
 
 

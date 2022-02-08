@@ -160,3 +160,4 @@ prod.session.sql
 thunderActivity.db
 
 .DS_Store
+*.sqlite

@@ -57,6 +57,7 @@ jobs:
       LOG_HANDLER: "console"
       LOG_LEVEL: "ERROR"
       API_KEY: "testApiKEY"
+      DB_NAME: "test.sqlite"
     name: tests
     runs-on: ubuntu-latest
     steps:
@@ -70,6 +71,9 @@ jobs:
 
       - name: install dependencies
         run: pip install -e ".[ci]"
+
+      - name: migrate
+        run: yoyo migrate
 
       - name: testing
         run: |

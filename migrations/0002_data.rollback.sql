@@ -1,2 +1,10 @@
-DELETE FROM players;
-DROP TABLE players;
+-- depends: 0001_init
+
+DELETE FROM players WHERE id IN ("9b5662a2-34ae-4131-935a-1ed9b850df38",
+"4ff8e05b-1bc7-4099-83e1-3894039535a2",
+"704363db-bb1b-4e84-a68a-b07ce3a53690",
+"d2b85d9b-1986-4ca4-a3e8-f0dca5381513",
+"f2fc5b45-2a4b-456b-b4dc-0560ba3de95f",
+"c13549ff-0f13-43a4-ac20-ecc8e84239b6",
+"16f412a1-1163-4eeb-8912-3b8043df1d0d",
+"85045723-2763-4095-9183-9aa1c882c708");
