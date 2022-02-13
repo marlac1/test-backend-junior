@@ -36,7 +36,9 @@ Due to its complexity, the matching process will not be integrated into this pro
 
 - There seems to be a bug in the post match statistics. Players do not have correct draws results.
 - There is a bug in 1to1 messages where sometimes, a message is not correctly set as read.
-- There is a bug in AFK check. When players act at the same time, the process only takes one action at time.
+- There is a bug in AFK check.
+- - When both player set ready at the same time, they are locked in waiting
+- - When player make leave and ready at the same time, only one action is correctly computed
 
 ## Tests
 
