@@ -10,6 +10,7 @@ The project is build to develop under VSCode with Devcontainers.
 - Open it in VSCode
 - Select run in devcontainer
 
+You can find the API documentation on: http://0.0.0.0:8000/docs
 ## Scenario
 
 BetOnYou is a play to earn application around games. As such we need to match player together through simple rules, collect their results and give or remove points. We also have to provide players with a list of awards when they collect enough points.

@@ -33,7 +33,7 @@ def test_player():
 
 
 class TestDirectConversation:
-    _BASE_URL = "http://localhost:8000/conversations"
+    _BASE_URL = "http://localhost:8000/social/conversation"
 
     class TestCreate:
         def test_creation_should_be_ok(self):

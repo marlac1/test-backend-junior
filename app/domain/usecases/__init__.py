@@ -1,3 +1,4 @@
+from .conversations import Conversation
 from .players import Player
 
-all = [Player]
+all = [Player, Conversation]

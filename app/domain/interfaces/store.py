@@ -27,6 +27,26 @@ class Players(ABC):
         """List all known players"""
 
 
+class Conversations(ABC):
+    """Manage conversation storage"""
+
+    @abstractmethod
+    def insert(self, conversation: entity.Conversation):
+        """Add conversation to storage"""
+
+    @abstractmethod
+    def update(self, conversation: entity.Conversation):
+        """Update conversation from storage"""
+
+    @abstractmethod
+    def select(self, conversation_id: str) -> entity.Conversation:
+        """Recover a specific conversation from storage"""
+
+    @abstractmethod
+    def list_for_players(self, player_id: str) -> List[entity.Conversation]:
+        """List provided player conversations"""
+
+
 class Transactions(ABC):
     """
     Transaction interface abstract transaction management

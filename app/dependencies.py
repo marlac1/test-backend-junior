@@ -20,7 +20,7 @@ from app.core import logger
 from app.domain import usecases
 from app.routes import API
 from app.routes import base as base_ep
-from app.routes import players
+from app.routes import players, social
 
 
 ######### MASKED SETUPS #########
@@ -62,6 +62,7 @@ class Store(DeclarativeContainer):
     transaction = Factory(stores.SQLTransactions, core.db)
 
     players = Factory(stores.Players, transaction)
+    conversations = Factory(stores.Conversation, transaction)
 
 
 class Usecases(DeclarativeContainer):
@@ -69,13 +70,17 @@ class Usecases(DeclarativeContainer):
     store: Store = DependenciesContainer()  # type: ignore
 
     players = Singleton(usecases.Player, store.players, core.logger)
+    conversations = Singleton(
+        usecases.Conversation, store.conversations, store.players, core.logger
+    )
 
 
 class Endpoints(DeclarativeContainer):
     uc: Usecases = DependenciesContainer()  # type: ignore
 
     base = Singleton(base_ep.Base)
-    players = Singleton(players.Players, uc.players)
+    players = Singleton(players.Players, uc.players, uc.conversations)
+    conversations = Singleton(social.Conversations, uc.conversations)
 
 
 ######### APPLICATION CONTAINERS #########
@@ -94,6 +99,7 @@ class BoyAPI(DeclarativeContainer):
         API,
         endpoints.base,
         endpoints.players,
+        endpoints.conversations,
     )
 
 

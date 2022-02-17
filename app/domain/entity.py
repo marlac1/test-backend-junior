@@ -1,8 +1,9 @@
 from copy import deepcopy as copy
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Set
+from typing import Any, Dict, List, Set
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Entity(BaseModel):
@@ -67,3 +68,15 @@ class Player(Entity):
     nickname: str
     phone_number: str
     gender: Gender = Gender.OTHERS
+
+
+class Conversation(Entity):
+    id: str
+    archived: bool = False
+    players: List[Player] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    def to_log(self) -> Dict:
+        data = self.dict(exclude={"created_at"})
+        data["created_at"] = self.created_at.isoformat()
+        return data
