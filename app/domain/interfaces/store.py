@@ -46,6 +46,20 @@ class Conversations(ABC):
     def list_for_players(self, player_id: str) -> List[entity.Conversation]:
         """List provided player conversations"""
 
+    @abstractmethod
+    def list_messages(self, conversation_id: str) -> List[entity.Conversation.Message]:
+        """List all messages in conversations"""
+
+    @abstractmethod
+    def add_message(self, message: entity.Conversation.Message):
+        """Add message to conversation"""
+
+    @abstractmethod
+    def get_latest_recieved_message(
+        self, conversation_id: str, player_id: str
+    ) -> entity.Conversation.Message:
+        """Get latest message recieved by player in conversation"""
+
 
 class Transactions(ABC):
     """

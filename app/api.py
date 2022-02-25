@@ -29,7 +29,7 @@ def run(_=Provide[BoyAPI.router], Log=Provide[BoyAPI.core.logger]):
                 )
             except ValueError as e:
                 __log_error.error("Unexpected value error when processing request", e)
-                valErr = ErrInvalidData("unknown", f"{e}", old_error=f"{e}")
+                valErr = ErrInvalidData("unknown", f"{e}")
                 return JSONResponse(
                     status_code=valErr.status,
                     content=jsonable_encoder(valErr.to_json()),
@@ -109,7 +109,7 @@ def run(_=Provide[BoyAPI.router], Log=Provide[BoyAPI.core.logger]):
 
             if err_location:
                 if err_location[0] == "body":
-                    key = err_location[1]
+                    key = err_location[1]  # type: ignore
                     val = exc.body.get(key) if exc.body else None
 
             expected_values = None

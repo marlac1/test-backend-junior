@@ -20,7 +20,7 @@ from app.core import logger
 from app.domain import usecases
 from app.routes import API
 from app.routes import base as base_ep
-from app.routes import players, social
+from app.routes import middlewares, players, social
 
 
 ######### MASKED SETUPS #########
@@ -75,12 +75,19 @@ class Usecases(DeclarativeContainer):
     )
 
 
+class Middlewares(DeclarativeContainer):
+    core: Core = DependenciesContainer()  # type: ignore
+
+    checks = Singleton(middlewares.Checks, core.config)
+
+
 class Endpoints(DeclarativeContainer):
     uc: Usecases = DependenciesContainer()  # type: ignore
 
     base = Singleton(base_ep.Base)
     players = Singleton(players.Players, uc.players, uc.conversations)
     conversations = Singleton(social.Conversations, uc.conversations)
+    messages = Singleton(social.Messages, uc.conversations)
 
 
 ######### APPLICATION CONTAINERS #########
@@ -89,6 +96,7 @@ class BoyAPI(DeclarativeContainer):
 
     core: Core = Container(Core, config=config)  # type: ignore
     store: Store = Container(Store, core=core)  # type: ignore
+    middlewares: Middlewares = Container(Middlewares, core=core)  # type: ignore
     uc: Usecases = Container(Usecases, core=core, store=store)  # type: ignore
     endpoints: Endpoints = Container(Endpoints, uc=uc)  # type: ignore
 
@@ -100,12 +108,13 @@ class BoyAPI(DeclarativeContainer):
         endpoints.base,
         endpoints.players,
         endpoints.conversations,
+        endpoints.messages,
     )
 
 
 ######### IN APP SETUP #########
 def setup_api_backgound(
     _log=Provide[BoyAPI.core.logging],
-    # _middlewares=Provide[BoyAPI.middlewares.checks],
+    _middlewares=Provide[BoyAPI.middlewares.checks],
 ):
     pass

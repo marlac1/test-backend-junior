@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from http import HTTPStatus
 from typing import Any, List, Optional
 
-from app.core.stringcase import pascalcase, snakecase  # type: ignore
+from app.core.stringcase import pascalcase  # type: ignore
 from pydantic import BaseModel
 
 

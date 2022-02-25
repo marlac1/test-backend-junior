@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List
+from datetime import datetime
+from typing import Dict, List
 
 from app.domain import entity
 from app.domain.errors import Details
@@ -14,6 +15,8 @@ class Conversation(BaseModel):
     id: str
     archived: bool
     players: List[entity.Player]
+    masked_by: List[str] = []
+    latest_read_message: Dict[str, str] = {}
 
     @staticmethod
     def from_entity(player: entity.Conversation) -> Conversation:
@@ -25,6 +28,36 @@ class Conversation(BaseModel):
             data["id"] = id
 
         return entity.Conversation(**data)
+
+
+class Message(BaseModel):
+    id: str
+    conversation_id: str
+    send_by: str
+    content: str
+    attachments: Dict
+    metadata: Dict
+    at: datetime
+
+    class Send(BaseModel):
+        content: str
+        attachments: Dict = {}
+        at: datetime
+
+        def to_entity(self, conversation_id: str, player_id: str) -> entity.Conversation.Message:
+            data = self.dict()
+            data["conversation_id"] = conversation_id
+            data["send_by"] = player_id
+            data["send_at"] = data["at"]
+
+            return entity.Conversation.Message(**data)
+
+    @staticmethod
+    def from_entity(message: entity.Conversation.Message) -> Message:
+        data = message.dict()
+        data["at"] = message.send_at
+
+        return Message(**data)
 
 
 class Errors:

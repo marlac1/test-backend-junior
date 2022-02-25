@@ -26,4 +26,4 @@ alias ls="ls -lAFG"
 
 export PROMPT_COMMAND='history -a'
 export HISTFILE=$HOME/commandhistory/.zsh_history
-export PATH="/home/vscode/.local/share/solana/install/active_release/bin:$PATH"
+# export PATH="/home/vscode/.local/share/solana/install/active_release/bin:$PATH"

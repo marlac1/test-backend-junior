@@ -75,8 +75,19 @@ class Conversation(Entity):
     archived: bool = False
     players: List[Player] = []
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    masked_by: List[str] = []
+    latest_read_message: Dict[str, str] = {}
 
     def to_log(self) -> Dict:
         data = self.dict(exclude={"created_at"})
         data["created_at"] = self.created_at.isoformat()
         return data
+
+    class Message(Entity):
+        id: str = ""
+        conversation_id: str
+        send_by: str
+        content: str
+        attachments: Dict = {}
+        metadata: Dict = {}
+        send_at: datetime

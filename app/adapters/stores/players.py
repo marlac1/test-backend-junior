@@ -1,11 +1,9 @@
-from statistics import mode
 from typing import List
 from uuid import UUID
 
 from app.domain import entity
 from app.domain.errors import ErrInvalidData, ErrNotFound
 from app.domain.interfaces import store
-from pyexpat import model
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.sql.expression import select
 

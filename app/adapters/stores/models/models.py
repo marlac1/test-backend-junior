@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from app.domain import entity
@@ -41,6 +43,30 @@ class ConversationMessage(Base):
     _metadata = Column("metadata", JSON)
     send_at = Column(DateTime, default=datetime.utcnow)
 
+    def to_entity(self) -> entity.Conversation.Message:
+        return entity.Conversation.Message(
+            id=self.id,
+            send_by=self.send_by,
+            conversation_id=self.conversation_id,
+            send_at=self.send_at,
+            content=self.content,
+            attachments=self.attachments if self.attachments else {},
+            metadata=self._metadata if self._metadata else {},
+        )
+
+    @staticmethod
+    def from_entity(
+        message: entity.Conversation.Message, is_update: bool = True
+    ) -> ConversationMessage:
+        data = message.dict(include=message.updated_fields()) if is_update else message.dict()
+        if not data["attachments"]:
+            del data["attachments"]
+
+        if not data["metadata"]:
+            del data["metadata"]
+
+        return ConversationMessage(**data)
+
 
 class ConversationPlayer(Base):
     __tablename__ = "conversation_players"
@@ -60,15 +86,27 @@ class Conversation(Base):
     created_at = Column(DateTime, nullable=False)
 
     players = relationship(Player, secondary="conversation_players")
+    __conversation_players = relationship(ConversationPlayer)
 
     @staticmethod
     def from_entity(conversation: entity.Conversation, is_update: bool = True):
         data = (
             conversation.dict(include=conversation.updated_fields(), exclude={"players"})
             if is_update
-            else conversation.dict(exclude={"players"})
+            else conversation.dict(exclude={"players", "latest_read_message", "masked_by"})
         )
         return Conversation(**data)
+
+    def update(self, conversation: entity.Conversation):
+        data = conversation.dict(
+            include=conversation.updated_fields(),
+            exclude={"players", "latest_read_message", "masked_by"},
+        )
+
+        for field, value in data.items():
+            setattr(self, field, value)
+
+        return self
 
     def to_entity(self) -> entity.Conversation:
         return entity.Conversation(
@@ -76,4 +114,12 @@ class Conversation(Base):
             archived=self.archived,
             created_at=self.created_at,
             players=[player.to_entity() for player in self.players],
+            masked_by=[
+                player.player_id for player in self.__conversation_players if player.masked
+            ],
+            latest_read_message={
+                player.player_id: player.last_read
+                for player in self.__conversation_players
+                if player.last_read is not None
+            },
         )

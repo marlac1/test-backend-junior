@@ -13,7 +13,7 @@ setup(
         "dependency_injector~=4.32",
         "email-validator==1.1.*",
         "fastapi==0.65.*",
-        "gspread==3.6.*",
+        # "gspread==3.6.*",
         "pandas~=1.3",
         "phonenumbers~=8.12",
         "pyOpenSSL==20.0.*",

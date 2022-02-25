@@ -26,8 +26,6 @@ WORKDIR /home/vscode
 ENV PATH="/home/vscode/venv/bin:$PATH"
 ENV TERM xterm
 
-# Install solana cli
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.9.4/install)"
 
 # Install python dependencies in venv
 COPY setup.py .

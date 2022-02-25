@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import List
 
 from app.domain import entity, usecases
@@ -38,6 +39,7 @@ class Players:
     @staticmethod
     @ep.post(
         "",
+        status_code=HTTPStatus.CREATED,
         responses={
             500: {"model": payloads.Errors.Base},
             400: {"model": payloads.Errors.InvalidData},
