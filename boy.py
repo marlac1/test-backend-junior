@@ -2,8 +2,9 @@ import logging
 from os import path
 
 import uvicorn
-from app import api, dependencies
 from fastapi.middleware.cors import CORSMiddleware
+
+from app import api, dependencies
 
 basedir = path.dirname(__file__)
 
@@ -31,4 +32,4 @@ serve.add_middleware(
 
 
 if __name__ == "__main__":
-    uvicorn.run("boy:serve", host="0.0.0.0", port=8000, reload=True)  # nosec
+    uvicorn.run("boy:serve", host="0.0.0.0", port=8000, reload=False)  # nosec

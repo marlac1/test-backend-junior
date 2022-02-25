@@ -2,7 +2,7 @@ from datetime import datetime
 
 from apiritif import http
 
-_BASE_URL = "http://localhost:8000"
+_BASE_URL = "http://0.0.0.0:8000"
 
 
 class TestBase:

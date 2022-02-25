@@ -72,8 +72,11 @@ jobs:
       - name: install dependencies
         run: pip install -e ".[ci]"
 
+      - name: setup
+        run: cp .env.sample .env
+
       - name: migrate
-        run: yoyo migrate
+        run: yoyo apply
 
       - name: testing
         run: |

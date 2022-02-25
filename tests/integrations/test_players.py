@@ -1,5 +1,3 @@
-from datetime import datetime
-from http import HTTPStatus
 from random import randint
 
 from apiritif import http
@@ -7,7 +5,7 @@ from faker import Faker
 from pytest import fixture
 from tests.tools import SqliteAssertions
 
-_BASE_URL = "http://localhost:8000/players"
+_BASE_URL = "http://0.0.0.0:8000/players"
 
 db = SqliteAssertions()
 fake = Faker()
